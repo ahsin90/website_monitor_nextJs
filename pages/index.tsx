@@ -1,10 +1,13 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
 import React, { useState, useEffect } from "react";
 import { SubmitButton } from "../components/Buttons/SubmitButton";
 import { ValidationErrors } from "../components/Alerts/ValidationErrors";
 import { Alert } from "../components/Alerts/Alert";
-const inter = Inter({ subsets: ["latin"] });
+
+// redux
+import type { RootState } from "../store/store";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../store/authStore";
 
 export default function Home() {
   const [isLoader, setIsLoader] = useState(false);
@@ -13,6 +16,12 @@ export default function Home() {
   const [errors, setErrors] = useState<any | null>(null);
 
   const apiUrl: any = process.env.NEXT_PUBLIC_API_HOST;
+
+  // const count = useSelector((state: RootState) => state.counter.value);
+  const dispatch = useDispatch();
+
+  // login
+  const auth: any = useSelector((state: RootState) => state.auth);
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -42,7 +51,9 @@ export default function Home() {
 
     if (response.status === 200) {
       const result = await response.json();
-      console.log(result);
+      const data = result.data;
+      // store login data into auth store
+      dispatch(login(data));
     } else {
       const result = await response.json();
 
@@ -69,10 +80,12 @@ export default function Home() {
             <div>
               <h1 className="text-gray-500 font-bold text-4xl font-sans">
                 Website Monitor
+                {/* {auth.user?.token} */}
               </h1>
               <p className="text-gray-400 mt-1">
                 Monitor your website everytime and get notification in your mail
               </p>
+
               <button
                 type="submit"
                 className="block w-28 bg-gray-400 text-white hover:bg-gray-300 mt-4 py-2 rounded-2xl font-bold mb-2"
